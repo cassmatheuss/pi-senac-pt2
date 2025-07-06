@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Administração do Cardápio</title>
+  <style>
+    body { 
+        font-family: Arial, 
+            sans-serif; margin: 30px; 
+    }
+    h2 { 
+        color: #333;
+    }
+    ul { 
+        list-style: none; 
+        padding: 0;
+    }
+    li { 
+        background: #f5f5f5;
+        margin-bottom: 12px;
+        padding: 16px;
+        border-radius: 7px;
+        position: relative; 
+    }
+    .nome {
+        font-weight: bold;
+        font-size: 1.1em; 
+    }
+    .preco { 
+        color: #008000; 
+        margin-left: 8px; 
+    }
+    .descricao { 
+        color: #555; 
+        font-size: 0.98em; 
+    }
+    .editar-btn, .apagar-btn { 
+        position: absolute; 
+        top: 16px; 
+        background: #0066cc; 
+        color: #fff; 
+        border: none; 
+        border-radius: 4px; 
+        padding: 4px 10px; 
+        cursor: pointer; 
+    }
+    .editar-btn { 
+        right: 80px; 
+        background: #0066cc;
+    }
+    .editar-btn:hover { 
+        background: #004c99;
+    }
+    .apagar-btn { 
+        right: 16px;
+        background: #cc0000;
+    }
+    .apagar-btn:hover {
+        background: #990000;
+    }
+    .adicionar-btn { 
+        background: #008000; 
+        color: #fff; 
+        border: none; 
+        border-radius: 5px; 
+        padding: 8px 18px; 
+        font-size: 1em; 
+        cursor: pointer; 
+        margin-bottom: 18px; 
+    }
+    .adicionar-btn:hover { 
+        background: #005c00;
+    }
+    .modal-bg { 
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.35);
+        align-items: center;
+        justify-content: center;
+    }
+    .modal { 
+        background: #fff;
+        padding: 24px 20px 16px 20px;
+        border-radius: 8px;
+        min-width: 320px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+    }
+    .modal input, .modal textarea { 
+        width: 100%; 
+        margin-bottom: 10px; 
+        padding: 7px; 
+        border: 1px solid #aaa; 
+        border-radius: 4px; 
+        font-size: 1em; 
+    }
+    .modal-actions {
+        text-align: right;
+    }
+    .modal-actions button {
+      margin-left: 8px;
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: none;
+      font-size: 1em;
+    }
+
+    .salvar-btn {
+      background: #008000;
+      color: #fff;
+    }
+
+    .salvar-btn:hover {
+      background: #005c00;
+    }
+
+    .cancelar-btn {
+      background: #888;
+      color: #fff;
+    }
+
+    .cancelar-btn:hover {
+      background: #444;
+    }
+
+    .modal-bg-confirm {
+      display: none;
+      position: fixed;
+      z-index: 1100;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.35);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-confirm {
+      background: #fff;
+      padding: 22px 20px 14px 20px;
+      border-radius: 8px;
+      min-width: 300px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+      text-align: center;
+    }
+
+    .modal-confirm button {
+      margin: 0 10px;
+      padding: 6px 16px;
+      border-radius: 4px;
+      border: none;
+      font-size: 1em;
+    }
+
+    .confirmar-btn {
+      background: #cc0000;
+      color: #fff;
+    }
+
+    .confirmar-btn:hover {
+      background: #990000;
+    }
+
+    .cancelar-conf-btn {
+      background: #888;
+      color: #fff;
+    }
+
+    .cancelar-conf-btn:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <h2>Administração do Cardápio</h2>
+  <button class="adicionar-btn" id="adicionar-btn">Adicionar novo item</button>
+  <ul id="lista-admin"></ul>
+  <div id="modal-bg" class="modal-bg">
+    <div class="modal">
+      <h3 id="modal-titulo">Editar Item</h3>
+      <input type="text" id="modal-nome" placeholder="Nome" />
+      <input type="number" id="modal-preco" placeholder="Preço" step="0.01" min="0" />
+      <textarea id="modal-descricao" placeholder="Descrição"></textarea>
+      <div class="modal-actions">
+        <button class="salvar-btn" id="salvar-modal">Salvar</button>
+        <button class="cancelar-btn" id="cancelar-modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-bg-confirm" class="modal-bg-confirm">
+    <div class="modal-confirm">
+      <div>Tem certeza que deseja apagar este item?</div>
+      <div style="margin-top: 18px;">
+        <button class="confirmar-btn" id="confirmar-apagar">Apagar</button>
+        <button class="cancelar-conf-btn" id="cancelar-apagar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    let cardapio = [
+      { id: 1, nome: 'Hambúrguer', preco: 25.0, descricao: 'Pão, carne e queijo' },
+      { id: 2, nome: 'Pizza', preco: 40.0, descricao: 'Mussarela, tomate e orégano' },
+      { id: 3, nome: 'Refrigerante', preco: 7.0, descricao: 'Lata 350ml' }
+    ];
+    let itemEditando = null;
+    let itemApagando = null;
+    let modoCriacao = false;
+    function renderizarAdmin() {
+      const ul = document.getElementById('lista-admin');
+      ul.innerHTML = '';
+      cardapio.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="nome">${item.nome}</span>
+          <span class="preco">R$ ${item.preco.toFixed(2)}</span>
+          <div class="descricao">${item.descricao}</div>
+          <button class="editar-btn">Editar</button>
+          <button class="apagar-btn">Apagar</button>
+        `;
+        li.querySelector('.editar-btn').onclick = function() {
+          abrirModalEditar(item);
+        };
+        li.querySelector('.apagar-btn').onclick = function() {
+          abrirConfirmacao(item);
+        };
+        ul.appendChild(li);
+      });
+    }
+    function abrirModalEditar(item) {
+      modoCriacao = false;
+      itemEditando = item;
+      document.getElementById('modal-titulo').textContent = 'Editar Item';
+      document.getElementById('modal-nome').value = item.nome;
+      document.getElementById('modal-preco').value = item.preco;
+      document.getElementById('modal-descricao').value = item.descricao;
+      document.getElementById('modal-bg').style.display = 'flex';
+    }
+    function abrirModalCriar() {
+      modoCriacao = true;
+      itemEditando = null;
+      document.getElementById('modal-titulo').textContent = 'Adicionar Novo Item';
+      document.getElementById('modal-nome').value = '';
+      document.getElementById('modal-preco').value = '';
+      document.getElementById('modal-descricao').value = '';
+      document.getElementById('modal-bg').style.display = 'flex';
+    }
+    function fecharModal() {
+      document.getElementById('modal-bg').style.display = 'none';
+      itemEditando = null;
+      modoCriacao = false;
+    }
+    document.getElementById('adicionar-btn').onclick = abrirModalCriar;
+    document.getElementById('salvar-modal').onclick = function() {
+      const nome = document.getElementById('modal-nome').value.trim();
+      const preco = parseFloat(document.getElementById('modal-preco').value) || 0;
+      const descricao = document.getElementById('modal-descricao').value.trim();
+      if (!nome || !descricao || preco <= 0) {
+        alert('Preencha todos os campos corretamente.');
+        return;
+      }
+      if (modoCriacao) {
+        const novoId = cardapio.length > 0 ? Math.max(...cardapio.map(i => i.id)) + 1 : 1;
+        cardapio.push({ id: novoId, nome, preco, descricao });
+      } else if (itemEditando) {
+        itemEditando.nome = nome;
+        itemEditando.preco = preco;
+        itemEditando.descricao = descricao;
+      }
+      fecharModal();
+      renderizarAdmin();
+    };
+    document.getElementById('cancelar-modal').onclick = fecharModal;
+    document.getElementById('modal-bg').onclick = function(e) {
+      if (e.target === this) fecharModal();
+    };
+    function abrirConfirmacao(item) {
+      itemApagando = item;
+      document.getElementById('modal-bg-confirm').style.display = 'flex';
+    }
+    function fecharConfirmacao() {
+      document.getElementById('modal-bg-confirm').style.display = 'none';
+      itemApagando = null;
+    }
+    document.getElementById('confirmar-apagar').onclick = function() {
+      if (!itemApagando) return;
+      cardapio = cardapio.filter(i => i.id !== itemApagando.id);
+      fecharConfirmacao();
+      renderizarAdmin();
+    };
+    document.getElementById('cancelar-apagar').onclick = fecharConfirmacao;
+    document.getElementById('modal-bg-confirm').onclick = function(e) {
+      if (e.target === this) fecharConfirmacao();
+    };
+    renderizarAdmin();
+  </script>
+</body>
+</html>
