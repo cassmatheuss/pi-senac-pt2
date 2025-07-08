@@ -3,75 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <title>Administração do Cardápio</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
-    body { 
-        font-family: Arial, 
-            sans-serif; margin: 30px; 
+    body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
     }
-    h2 { 
+
+    h2 {
         color: #333;
     }
-    ul { 
-        list-style: none; 
+
+    ul {
+        list-style: none;
         padding: 0;
     }
-    li { 
+
+    li {
         background: #f5f5f5;
         margin-bottom: 12px;
         padding: 16px;
         border-radius: 7px;
-        position: relative; 
+        position: relative;
     }
+
     .nome {
         font-weight: bold;
-        font-size: 1.1em; 
+        font-size: 1.1em;
     }
-    .preco { 
-        color: #008000; 
-        margin-left: 8px; 
+
+    .preco {
+        color: #008000;
+        margin-left: 8px;
     }
-    .descricao { 
-        color: #555; 
-        font-size: 0.98em; 
+
+    .descricao {
+        color: #555;
+        font-size: 0.98em;
     }
-    .editar-btn, .apagar-btn { 
-        position: absolute; 
-        top: 16px; 
-        background: #0066cc; 
-        color: #fff; 
-        border: none; 
-        border-radius: 4px; 
-        padding: 4px 10px; 
-        cursor: pointer; 
+
+    .editar-btn,
+    .apagar-btn {
+        position: absolute;
+        top: 16px;
+        background: #0066cc;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
     }
-    .editar-btn { 
-        right: 80px; 
+
+    .editar-btn {
+        right: 80px;
         background: #0066cc;
     }
-    .editar-btn:hover { 
+
+    .editar-btn:hover {
         background: #004c99;
     }
-    .apagar-btn { 
+
+    .apagar-btn {
         right: 16px;
         background: #cc0000;
     }
+
     .apagar-btn:hover {
         background: #990000;
     }
-    .adicionar-btn { 
-        background: #008000; 
-        color: #fff; 
-        border: none; 
-        border-radius: 5px; 
-        padding: 8px 18px; 
-        font-size: 1em; 
-        cursor: pointer; 
-        margin-bottom: 18px; 
+
+    .adicionar-btn {
+        background: #008000;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 18px;
+        font-size: 1em;
+        cursor: pointer;
+        margin-bottom: 18px;
     }
-    .adicionar-btn:hover { 
+
+    .adicionar-btn:hover {
         background: #005c00;
     }
-    .modal-bg { 
+
+    .modal-bg {
         display: none;
         position: fixed;
         z-index: 1000;
@@ -79,101 +95,107 @@
         top: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(0,0,0,0.35);
+        background: rgba(0, 0, 0, 0.35);
         align-items: center;
         justify-content: center;
     }
-    .modal { 
+
+    .modal {
         background: #fff;
         padding: 24px 20px 16px 20px;
         border-radius: 8px;
         min-width: 320px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
     }
-    .modal input, .modal textarea { 
-        width: 100%; 
-        margin-bottom: 10px; 
-        padding: 7px; 
-        border: 1px solid #aaa; 
-        border-radius: 4px; 
-        font-size: 1em; 
+
+    .modal input,
+    .modal textarea {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 7px;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        font-size: 1em;
     }
+
     .modal-actions {
         text-align: right;
     }
+
     .modal-actions button {
-      margin-left: 8px;
-      padding: 6px 14px;
-      border-radius: 4px;
-      border: none;
-      font-size: 1em;
+        margin-left: 8px;
+        padding: 6px 14px;
+        border-radius: 4px;
+        border: none;
+        font-size: 1em;
     }
 
     .salvar-btn {
-      background: #008000;
-      color: #fff;
+        background: #008000;
+        color: #fff;
     }
 
     .salvar-btn:hover {
-      background: #005c00;
+        background: #005c00;
     }
 
     .cancelar-btn {
-      background: #888;
-      color: #fff;
+        background: #888;
+        color: #fff;
     }
 
     .cancelar-btn:hover {
-      background: #444;
+        background: #444;
     }
 
     .modal-bg-confirm {
-      display: none;
-      position: fixed;
-      z-index: 1100;
-      left: 0;
-      top: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.35);
-      align-items: center;
-      justify-content: center;
+        display: none;
+        position: fixed;
+        z-index: 1100;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.35);
+        align-items: center;
+        justify-content: center;
     }
 
     .modal-confirm {
-      background: #fff;
-      padding: 22px 20px 14px 20px;
-      border-radius: 8px;
-      min-width: 300px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
-      text-align: center;
+        background: #fff;
+        padding: 22px 20px 14px 20px;
+        border-radius: 8px;
+        min-width: 300px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+        text-align: center;
     }
 
     .modal-confirm button {
-      margin: 0 10px;
-      padding: 6px 16px;
-      border-radius: 4px;
-      border: none;
-      font-size: 1em;
+        margin: 0 10px;
+        padding: 6px 16px;
+        border-radius: 4px;
+        border: none;
+        font-size: 1em;
     }
 
     .confirmar-btn {
-      background: #cc0000;
-      color: #fff;
+        background: #cc0000;
+        color: #fff;
     }
 
     .confirmar-btn:hover {
-      background: #990000;
+        background: #990000;
     }
 
     .cancelar-conf-btn {
-      background: #888;
-      color: #fff;
+        background: #888;
+        color: #fff;
     }
 
     .cancelar-conf-btn:hover {
-      background: #444;
+        background: #444;
     }
+
   </style>
 </head>
 <body>
@@ -202,14 +224,18 @@
     </div>
   </div>
   <script>
-    let cardapio = [
-      { id: 1, nome: 'Hambúrguer', preco: 25.0, descricao: 'Pão, carne e queijo' },
-      { id: 2, nome: 'Pizza', preco: 40.0, descricao: 'Mussarela, tomate e orégano' },
-      { id: 3, nome: 'Refrigerante', preco: 7.0, descricao: 'Lata 350ml' }
-    ];
+    let cardapio = [];
     let itemEditando = null;
     let itemApagando = null;
     let modoCriacao = false;
+
+    function carregarItens() {
+      $.get('/api/itens', function(data) {
+        cardapio = data;
+        renderizarAdmin();
+      });
+    }
+
     function renderizarAdmin() {
       const ul = document.getElementById('lista-admin');
       ul.innerHTML = '';
@@ -231,72 +257,105 @@
         ul.appendChild(li);
       });
     }
+
     function abrirModalEditar(item) {
       modoCriacao = false;
       itemEditando = item;
-      document.getElementById('modal-titulo').textContent = 'Editar Item';
-      document.getElementById('modal-nome').value = item.nome;
-      document.getElementById('modal-preco').value = item.preco;
-      document.getElementById('modal-descricao').value = item.descricao;
-      document.getElementById('modal-bg').style.display = 'flex';
+      $('#modal-titulo').text('Editar Item');
+      $('#modal-nome').val(item.nome);
+      $('#modal-preco').val(item.preco);
+      $('#modal-descricao').val(item.descricao);
+      $('#modal-bg').css('display', 'flex');
     }
+
     function abrirModalCriar() {
       modoCriacao = true;
       itemEditando = null;
-      document.getElementById('modal-titulo').textContent = 'Adicionar Novo Item';
-      document.getElementById('modal-nome').value = '';
-      document.getElementById('modal-preco').value = '';
-      document.getElementById('modal-descricao').value = '';
-      document.getElementById('modal-bg').style.display = 'flex';
+      $('#modal-titulo').text('Adicionar Novo Item');
+      $('#modal-nome').val('');
+      $('#modal-preco').val('');
+      $('#modal-descricao').val('');
+      $('#modal-bg').css('display', 'flex');
     }
+
     function fecharModal() {
-      document.getElementById('modal-bg').style.display = 'none';
+      $('#modal-bg').css('display', 'none');
       itemEditando = null;
       modoCriacao = false;
     }
-    document.getElementById('adicionar-btn').onclick = abrirModalCriar;
-    document.getElementById('salvar-modal').onclick = function() {
-      const nome = document.getElementById('modal-nome').value.trim();
-      const preco = parseFloat(document.getElementById('modal-preco').value) || 0;
-      const descricao = document.getElementById('modal-descricao').value.trim();
+
+    $('#adicionar-btn').click(abrirModalCriar);
+
+    $('#salvar-modal').click(function() {
+      const nome = $('#modal-nome').val().trim();
+      const preco = parseFloat($('#modal-preco').val()) || 0;
+      const descricao = $('#modal-descricao').val().trim();
       if (!nome || !descricao || preco <= 0) {
         alert('Preencha todos os campos corretamente.');
         return;
       }
       if (modoCriacao) {
-        const novoId = cardapio.length > 0 ? Math.max(...cardapio.map(i => i.id)) + 1 : 1;
-        cardapio.push({ id: novoId, nome, preco, descricao });
+        $.ajax({
+          url: '/api/itens',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ nome, preco, descricao }),
+          success: function() {
+            carregarItens();
+            fecharModal();
+          }
+        });
       } else if (itemEditando) {
-        itemEditando.nome = nome;
-        itemEditando.preco = preco;
-        itemEditando.descricao = descricao;
+        $.ajax({
+          url: '/api/itens/' + itemEditando.id,
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({ nome, preco, descricao }),
+          success: function() {
+            carregarItens();
+            fecharModal();
+          }
+        });
       }
-      fecharModal();
-      renderizarAdmin();
-    };
-    document.getElementById('cancelar-modal').onclick = fecharModal;
-    document.getElementById('modal-bg').onclick = function(e) {
+    });
+
+    $('#cancelar-modal').click(fecharModal);
+
+    $('#modal-bg').click(function(e) {
       if (e.target === this) fecharModal();
-    };
+    });
+
     function abrirConfirmacao(item) {
       itemApagando = item;
-      document.getElementById('modal-bg-confirm').style.display = 'flex';
+      $('#modal-bg-confirm').css('display', 'flex');
     }
+
     function fecharConfirmacao() {
-      document.getElementById('modal-bg-confirm').style.display = 'none';
+      $('#modal-bg-confirm').css('display', 'none');
       itemApagando = null;
     }
-    document.getElementById('confirmar-apagar').onclick = function() {
+
+    $('#confirmar-apagar').click(function() {
       if (!itemApagando) return;
-      cardapio = cardapio.filter(i => i.id !== itemApagando.id);
-      fecharConfirmacao();
-      renderizarAdmin();
-    };
-    document.getElementById('cancelar-apagar').onclick = fecharConfirmacao;
-    document.getElementById('modal-bg-confirm').onclick = function(e) {
+      $.ajax({
+        url: '/api/itens/' + itemApagando.id,
+        type: 'DELETE',
+        success: function() {
+          carregarItens();
+          fecharConfirmacao();
+        }
+      });
+    });
+
+    $('#cancelar-apagar').click(fecharConfirmacao);
+
+    $('#modal-bg-confirm').click(function(e) {
       if (e.target === this) fecharConfirmacao();
-    };
-    renderizarAdmin();
+    });
+
+    $(function() {
+      carregarItens();
+    });
   </script>
 </body>
 </html>
